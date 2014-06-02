@@ -8,15 +8,20 @@ Pero también se puede aplicar para probar las reglas manuales del **F5**.
 
 Infraestructura
 ---------------
-Se precisa un server "Beta"/"Stage" del Load Balancer para probar las reglas antes de impactarlas en el server de producción y evitar downtime del site.
+Se precisa un server **Beta** / **Stage** del Load Balancer para probar las reglas antes de impactarlas en el server de producción y evitar downtime del site.
 
 En dicho server, se deben apuntar los dominios a testear a localhost. Ej:
-```$ cat /etc/hosts
+
+```
+$ cat /etc/hosts
 127.0.0.1   localhost localhost.localdomain
 127.0.0.1   viajeros.com www.viajeros.com viajantes.com www.viajantes.com
 ```
+
 pero podría ser:
-```$ cat /etc/hosts
+
+```
+$ cat /etc/hosts
 127.0.0.1   localhost localhost.localdomain
 127.0.0.1   despegar.com despegar.com.ar decolar.com <etc>
 ```
@@ -25,7 +30,8 @@ Instalación
 -----------
 A continuación, copian el script y el listado de pruebas donde le quede más cómodo (en nuestro caso, junto a los scripts de configuración del HAProxy en `/etc/haproxy/`)
 
-```[ec2-user@domU-12-31-39-04-ED-0B haproxy]$ ll
+```
+[ec2-user@domU-12-31-39-04-ED-0B haproxy]$ ll
 total 28
 -rw-r--r-- 1 root root 4681 may 30 21:47 haproxy.cfg
 -rw-r--r-- 1 root root  315 may 30 22:47 lbunittests.list
@@ -33,9 +39,9 @@ total 28
 ```
 
 Estos 3 archivos resaltados son:
-* haproxy.cfg --> Este es el archivo de configuración de las reglas y regular expressions que usamos para ir migrando de Amazon a Cloudia
-* lbunittests.list --> El archivo donde se cargan las pruebas unitarias
-* lbunittests.sh --> El archivo con el que corren las pruebas.
+- `haproxy.cfg` es el archivo de configuración de las reglas y regular expressions que usamos para ir migrando de Amazon a Cloudia
+- `lbunittests.list` es el archivo donde se cargan las pruebas unitarias
+- `lbunittests.sh` es el archivo con el que corren las pruebas.
 
 Creación de Tests
 -----------------
@@ -44,6 +50,7 @@ Supongamos que queremos armar una regla para apuntar el contenido estático a un
 Ej:  haproxy configurado para apuntar a cloudia con el contenido estático de los Apaches para las apps de NodeJS
 
 **haproxy.cfg**
+
 ```
     # VJ3 - PUBLIC
     acl vjf-public path_reg ^/public/.*\.(css|js|png|jpg|gif|html)$
@@ -63,7 +70,8 @@ donde:
 Ejecución
 ---------
 
-```[ec2-user@domU-12-31-39-04-ED-0B haproxy]$ ./lbunittests.sh
+```
+[ec2-user@domU-12-31-39-04-ED-0B haproxy]$ ./lbunittests.sh
                                                                                
 Test: Statics (Apache)                                                         
 URL: http://www.viajeros.com/public/frontend-library/css/latest/library-pkg.css
