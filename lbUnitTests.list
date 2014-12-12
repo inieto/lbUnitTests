@@ -1,4 +1,17 @@
-Main Page (AWS) , http://www.viajeros.com , 200 , Server: Viajeros2-ECFE | X-VJR-RsrcInfo
-Statics (Apache) , http://www.viajeros.com/public/frontend-library/css/latest/library-pkg.css , 200 , Apache | ETag | Last-Modified
-Hotels (NodeJS) , http://www.viajeros.com/hotels/982/2014-12-01/2014-12-29/2 , 200 , Express
+# +--------------------------------------------------------+
+# | lbUnitTests.list                                       |
+# | ----------------                                       |
+# | Listado de pruebas de reglas de cualquier LoadBalancer |
+# +--------------------------------------------------------+
+
+# format: TITLE , URL , HTTP_STATUS_CODE, GREP_HEADERS , REQ_COOKIES 
+
+# Basic
+"Simple Example","http://www.mysite.com",200,"Server: hostname | X-Custom-Header: customInfo"
+
+# Environments
+"IC Environment","http://ic.mysite.com",200,"Server: ic"
+"RC Environment","http://rc.mysite.com",200,"Server: rc"
+"UX Environment","http://ux.mysite.com",200,"Server: ux"
+"Beta Environment","http://www.mysite.com",200,"Server: beta","X-Version-Override=mysite=beta"
 
