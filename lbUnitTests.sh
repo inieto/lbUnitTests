@@ -20,7 +20,7 @@ YELLOW="\e[0;33m%s\e[00m\n"
 WHITE="\e[1;38m%s\e[00m\n"
 
 # Functions
-alias trimString='sed -e "s/^ *//" -e "s/* $//"'
+alias trimString='sed -e "s/^ //" -e "s/ $//"'
 alias removeQuotes='sed -e "s/\"//g"'
 function _validateParams() {
         if [ $# -ne 0 ]; then
@@ -46,26 +46,32 @@ while IFS=$'\n' read i; do
 	COOKIES=$(  echo $i | cut -d ',' -f 5 | trimString | removeQuotes)
 	GREP=""
 
-	OLD_IFS=$IFS
-	IFS=$'\n'
-	for j in $(echo $PATTERN | tr "|" "\n" | trimString); do
-		GREP="$GREP | grep '$j'"
-	done
-	IFS=$OLD_IFS
-
+	# print test info
         printf "Test: $WHITE" "$NAME"
         printf "URL: $YELLOW" $URL
         echo "Expected HTTP Status Code: $HTTP_CODE"
 	echo "Expected 'grep' pattern: $PATTERN" 
+	[ "$COOKIES" != "" ] && echo "Using cookie: $COOKIES"
 
-	CMD="curl -I $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP"
+	# resolve grep and cookies
+        OLD_IFS=$IFS
+        IFS=$'\n'
+        for j in $(echo $PATTERN | tr "|" "\n" | trimString); do
+                GREP="$GREP | grep '$j'"
+        done
+        IFS=$OLD_IFS
+
+	[ "$COOKIES" != "" ] && COOKIES="--cookie \"$COOKIES\"" 
+
+	# execute
+	CMD="curl -I $COOKIES $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP"
 	eval $CMD > /dev/null
 	RESULT=$?
 
 	if [ $RESULT -ne 0 ]; then
                 printf "Result: $RED" "FAIL!"
                 echo "Try it yourself!"
-		printf "$YELLOW" "curl -I $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP; echo \$?"
+		printf "$YELLOW" "curl -I $COOKIES $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP; echo \$?"
 	else
 		printf "Result: $GREEN" "SUCCESS!"
         fi
