@@ -44,6 +44,7 @@ while IFS=$'\n' read i; do
 	HTTP_CODE=$(echo $i | cut -d ',' -f 3 | trimString | removeQuotes)
 	PATTERN=$(  echo $i | cut -d ',' -f 4 | removeQuotes)
 	COOKIES=$(  echo $i | cut -d ',' -f 5 | trimString | removeQuotes)
+	HPATTERNS=$( echo $i | cut -d ',' -f 6 | trimString | removeQuotes)
 	GREP=""
 
 	# print test info
@@ -53,7 +54,7 @@ while IFS=$'\n' read i; do
 	echo "Expected 'grep' pattern: $PATTERN" 
 	[ "$COOKIES" != "" ] && echo "Using cookie: $COOKIES"
 
-	# resolve grep and cookies
+	# resolve grep 
         OLD_IFS=$IFS
         IFS=$'\n'
         for j in $(echo $PATTERN | tr "|" "\n" | trimString); do
@@ -61,17 +62,26 @@ while IFS=$'\n' read i; do
         done
         IFS=$OLD_IFS
 
+	# custom cookies
 	[ "$COOKIES" != "" ] && COOKIES="--cookie \"$COOKIES\"" 
 
+        # custom headers
+        OLD_IFS=$IFS
+        IFS=$'\n'
+        for k in $(echo $HPATTERNS | tr "|" "\n" | trimString); do
+                HEADERS="$HEADERS -H '$k'"
+        done
+        IFS=$OLD_IFS
+
 	# execute
-	CMD="curl -I $COOKIES $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP"
+	CMD="curl -I $COOKIES $HEADERS $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP"
 	eval $CMD > /dev/null
 	RESULT=$?
 
 	if [ $RESULT -ne 0 ]; then
                 printf "Result: $RED" "FAIL!"
                 echo "Try it yourself!"
-		printf "$YELLOW" "curl -I $COOKIES $URL 2>/dev/null | tr \"\n\r\" \" \" | grep $HTTP_CODE $GREP; echo \$?"
+		printf "$YELLOW" "$CMD; echo \$?"
 	else
 		printf "Result: $GREEN" "SUCCESS!"
         fi
